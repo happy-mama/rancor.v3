@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { BaseCommand } from "../baseCommand";
+import statsService from "#repo/stats";
 
 const ASK_ANSWERS = [
     "Это правда нан проверил",
@@ -64,6 +65,8 @@ export const command = new BaseCommand({
         },
     ],
     run: async (ctx) => {
+        await statsService.incrementStatsCommandsUsed(ctx.interaction.user.id);
+
         if (!ctx.options.text.value) {
             ctx.meta.tags.push("empty text");
 
