@@ -65,6 +65,7 @@ export class BaseCommand<
             meta,
             interaction,
             options: options as ResolveOptions<CommandOptions>,
+            logger: this.logger,
         };
     }
 

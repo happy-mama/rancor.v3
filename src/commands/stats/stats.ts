@@ -5,7 +5,7 @@ import statsService from "#repo/stats";
 import { voiceService } from "#repo/voice";
 import { VoiceSessionState } from "#generated/prisma/enums";
 
-export const command = new BaseCommand({
+export const statsCommand = new BaseCommand({
     name: "stats",
     description: "Узнать статистику пользователя",
     options: [

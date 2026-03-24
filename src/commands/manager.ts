@@ -92,12 +92,18 @@ class CommandManager {
                     break;
                 }
                 case ApplicationCommandOptionType.String: {
-                    slashCommand.addStringOption((builder) =>
+                    slashCommand.addStringOption((builder) => {
                         builder
                             .setName(option.name)
                             .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
+                            .setRequired(option.isRequired ?? false);
+
+                        if (option.choices) {
+                            builder.setChoices(option.choices);
+                        }
+
+                        return builder;
+                    });
                     break;
                 }
                 case ApplicationCommandOptionType.Number: {
@@ -119,12 +125,18 @@ class CommandManager {
                     break;
                 }
                 case ApplicationCommandOptionType.Integer: {
-                    slashCommand.addIntegerOption((builder) =>
+                    slashCommand.addIntegerOption((builder) => {
                         builder
                             .setName(option.name)
                             .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
+                            .setRequired(option.isRequired ?? false);
+
+                        if (option.choices) {
+                            builder.setChoices(option.choices);
+                        }
+
+                        return builder;
+                    });
                     break;
                 }
                 case ApplicationCommandOptionType.Attachment: {

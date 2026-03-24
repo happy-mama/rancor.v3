@@ -53,7 +53,7 @@ const ASK_ANSWERS = [
     "Ответ положительный, последствия отрицательные",
 ];
 
-export const command = new BaseCommand({
+export const askCommand = new BaseCommand({
     name: "ask",
     description: "Правда ли...",
     options: [

@@ -99,7 +99,7 @@ class VoiceService {
     }
 
     async getTime(discordId: string) {
-        const time = await this.formatTime(await this.getTimeRaw(discordId));
+        const time = this.formatTime(await this.getTimeRaw(discordId));
         const session = await this.getSession(discordId);
 
         return { time, session };
@@ -122,7 +122,7 @@ class VoiceService {
         return BigInt(sessionTime) + statsTime;
     }
 
-    async formatTime(time: bigint) {
+    formatTime(time: bigint) {
         const totalMinutes = Number(time) / 60000;
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.floor(totalMinutes % 60);

@@ -1,4 +1,5 @@
 import { prisma, PrismaTX } from "#lib/prisma";
+import { config } from "#utils/config";
 
 class StatsService {
     async getStats(discordId: string) {
@@ -52,6 +53,31 @@ class StatsService {
                         [type]: { increment: value },
                     },
                 },
+            },
+        });
+    }
+
+    async getTopStats({
+        tx = prisma,
+        type,
+        limit = 10,
+    }: {
+        tx?: PrismaTX;
+        type: "messagesSent" | "commandsUsed" | "voiceTime";
+        limit?: number;
+    }) {
+        return await tx.stats.findMany({
+            where: {
+                user: {
+                    discordId: { not: config.get("DISCORD_BOT_ID") },
+                },
+            },
+            orderBy: {
+                [type]: "desc",
+            },
+            take: limit,
+            include: {
+                user: true,
             },
         });
     }

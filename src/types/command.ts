@@ -8,8 +8,10 @@ import {
     User,
     VoiceChannel,
 } from "discord.js";
-import { config as configType } from "#utils/config";
 import { CategoryChannel, GuildMember } from "node_modules/discord.js/typings";
+
+import { config as configType } from "#utils/config";
+import { Logger } from "#utils/logger";
 
 export interface CommandMeta {
     name: string;
@@ -18,7 +20,7 @@ export interface CommandMeta {
 
 export type CommandRun<T extends CommandOption[]> = (
     ctx: CommandContext<T>,
-) => Promise<void>;
+) => Promise<unknown>;
 
 export interface CommandContextMeta {
     timeStart: number;
@@ -33,28 +35,90 @@ export interface CommandContext<CommandOptions extends CommandOption[]> {
     meta: CommandContextMeta;
     interaction: ChatInputCommandInteraction;
     options: ResolveOptions<CommandOptions>;
+    logger: Logger;
 }
 
-export interface CommandOption {
+type CommandOptionChoice<T extends ApplicationCommandOptionType> = {
+    name: string;
+    value: T extends ApplicationCommandOptionType.Integer ? number : string;
+};
+
+type CommandOptionBase<Type extends ApplicationCommandOptionType> = {
     name: string;
     description: string;
     isRequired?: boolean;
-    type: ApplicationCommandOptionType;
+    type: Type;
+};
+
+type ChoiceAllowed =
+    | ApplicationCommandOptionType.String
+    | ApplicationCommandOptionType.Integer;
+
+export type CommandOption =
+    | (CommandOptionBase<ApplicationCommandOptionType.String> & {
+          choices?: CommandOptionChoice<ApplicationCommandOptionType.String>[];
+      })
+    | (CommandOptionBase<ApplicationCommandOptionType.Integer> & {
+          choices?: CommandOptionChoice<ApplicationCommandOptionType.Integer>[];
+      })
+    | (CommandOptionBase<
+          Exclude<ApplicationCommandOptionType, ChoiceAllowed>
+      > & {
+          choices?: never;
+      });
+
+type ExtractChoiceValues<T> = T extends { choices: readonly (infer C)[] }
+    ? C extends { value: infer V }
+        ? V
+        : never
+    : never;
+
+type ResolveValue<K extends CommandOption> = K extends {
+    choices: readonly any[];
 }
+    ? ExtractChoiceValues<K>
+    : CommandInteractionOptions[Extract<
+          K["type"],
+          keyof CommandInteractionOptions
+      >]["value"];
 
 export type ResolveOptions<Options extends CommandOption[]> = {
     [K in Options[number] as K["name"]]: K["isRequired"] extends true
-        ? CommandInteractionOptions[Extract<
-              K["type"],
-              keyof CommandInteractionOptions
-          >]
+        ? Omit<
+              CommandInteractionOptions[Extract<
+                  K["type"],
+                  keyof CommandInteractionOptions
+              >],
+              "value"
+          > & {
+              value: ResolveValue<K>;
+          }
         :
-              | CommandInteractionOptions[Extract<
-                    K["type"],
-                    keyof CommandInteractionOptions
-                >]
+              | (Omit<
+                    CommandInteractionOptions[Extract<
+                        K["type"],
+                        keyof CommandInteractionOptions
+                    >],
+                    "value"
+                > & {
+                    value: ResolveValue<K>;
+                })
               | undefined;
 };
+
+// export type ResolveOptions<Options extends CommandOption[]> = {
+//     [K in Options[number] as K["name"]]: K["isRequired"] extends true
+//         ? CommandInteractionOptions[Extract<
+//               K["type"],
+//               keyof CommandInteractionOptions
+//           >]
+//         :
+//               | CommandInteractionOptions[Extract<
+//                     K["type"],
+//                     keyof CommandInteractionOptions
+//                 >]
+//               | undefined;
+// };
 
 export interface CommandInteractionOptions {
     [ApplicationCommandOptionType.User]: {
