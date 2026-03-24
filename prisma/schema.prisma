@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VoiceSessionState {
+  ACTIVE
+  ENDED
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  discordId String @unique @map("discord_id")
+  username String @default("")
+
+  stats Stats?
+  voiceSession VoiceSession?
+}
+
+model Stats {
+  userId Int @id @unique @map("user_id")
+
+  voiceTime BigInt @default(0) @map("voice_time")
+  commandsUsed Int @default(0) @map("commands_used")
+  messagesSent Int @default(0) @map("messages_sent")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VoiceSession {
+  userId Int @id @map("user_id")
+
+  startTime DateTime @default(now()) @map("start_time")
+  endTime DateTime @default(now()) @map("end_time")
+  state VoiceSessionState @default(ACTIVE)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DiscordCommandsMeta {
+  id Int @id @default(autoincrement())
+
+  name String @unique @map("name")
+
+}

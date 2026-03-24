@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+
+        "rootDir": "./",
+        "outDir": "./dist",
+
+        "baseUrl": "./",
+        "paths": {
+            "#root/*": ["/"],
+            "#src/*": ["src/*"],
+            "#utils/*": ["src/utils/*"],
+            "#events/*": ["src/events/*"],
+            "#commands/*": ["src/commands/*"],
+            "#types/*": ["src/types/*"],
+            "#generated/*": ["generated/*"],
+            "#lib/*": ["src/lib/*"],
+            "#repo/*": ["src/repo/*"],
+        },
+    },
+}
