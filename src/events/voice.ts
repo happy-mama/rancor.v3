@@ -9,8 +9,6 @@ class VoiceEvents {
 
     constructor() {
         client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
-            console.log(oldVoiceState.channelId, newVoiceState.channelId);
-
             // ignore useless mic mute updates
             if (oldVoiceState.channelId == newVoiceState.channelId) return;
 
@@ -53,7 +51,7 @@ class VoiceEvents {
         if (!oldVoiceState.member?.user.id) return;
 
         this.logger.debug(
-            `member "${oldVoiceState.member.user.username}" joined voice channel`,
+            `member "${oldVoiceState.member.user.username}" left voice channel`,
         );
 
         voiceService.endSession(oldVoiceState.member.user.id);
