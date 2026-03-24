@@ -18,7 +18,7 @@ export interface CommandMeta {
 
 export type CommandRun<T extends CommandOption[]> = (
     ctx: CommandContext<T>,
-) => void;
+) => Promise<void>;
 
 export interface CommandContextMeta {
     timeStart: number;
