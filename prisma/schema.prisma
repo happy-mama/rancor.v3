@@ -34,6 +34,7 @@ model Stats {
   voiceTime BigInt @default(0) @map("voice_time")
   commandsUsed Int @default(0) @map("commands_used")
   messagesSent Int @default(0) @map("messages_sent")
+  reactionsUsed Int @default(0) @map("reactions_used")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -46,11 +47,4 @@ model VoiceSession {
   state VoiceSessionState @default(ACTIVE)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model DiscordCommandsMeta {
-  id Int @id @default(autoincrement())
-
-  name String @unique @map("name")
-
 }

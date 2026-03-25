@@ -57,7 +57,8 @@ export const statsCommand = new BaseCommand({
                         `**Время в воисе**: \`${voice.time}\`\n` +
                         `**Последняя сессия в воисе:** ${lastSession}\n` +
                         `**Сообщений**: ${stats.messagesSent}\n` +
-                        `**Команд**: ${stats.commandsUsed}`,
+                        `**Команд**: ${stats.commandsUsed}\n` +
+                        `**Реакций**: ${stats.reactionsUsed}`,
                     color: 13748767,
                 },
             ],

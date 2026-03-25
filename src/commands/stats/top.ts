@@ -5,7 +5,7 @@ import statsService from "#repo/stats";
 import { voiceService } from "#repo/voice";
 
 const formatCategoryName = (
-    category: "messagesSent" | "commandsUsed" | "voiceTime",
+    category: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed",
 ) => {
     switch (category) {
         case "messagesSent":
@@ -14,11 +14,13 @@ const formatCategoryName = (
             return "количеству вызванных команд";
         case "voiceTime":
             return "времени в голосовых каналах";
+        case "reactionsUsed":
+            return "количеству использованных реакций";
     }
 };
 
 const formatCategoryValue = (
-    category: "messagesSent" | "commandsUsed" | "voiceTime",
+    category: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed",
     value: number | bigint,
 ) => {
     switch (category) {
@@ -28,6 +30,8 @@ const formatCategoryValue = (
             return value;
         case "voiceTime":
             return voiceService.formatTime(value as bigint);
+        case "reactionsUsed":
+            return value;
     }
 };
 
@@ -53,6 +57,10 @@ export const topCommand = new BaseCommand({
                     name: "commands",
                     value: "commandsUsed",
                 },
+                {
+                    name: "reactions",
+                    value: "reactionsUsed",
+                },
             ],
         },
         {
@@ -63,6 +71,8 @@ export const topCommand = new BaseCommand({
         },
     ],
     run: async (ctx) => {
+        await statsService.incrementStatsCommandsUsed(ctx.interaction.user.id);
+
         const data = await statsService.getTopStats({
             type: ctx.options.category.value,
         });

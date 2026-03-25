@@ -40,7 +40,7 @@ class StatsService {
     }: {
         tx?: PrismaTX;
         discordId: string;
-        type: "messagesSent" | "commandsUsed" | "voiceTime";
+        type: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed";
         value: number;
     }) {
         return tx.user.update({
@@ -63,7 +63,7 @@ class StatsService {
         limit = 10,
     }: {
         tx?: PrismaTX;
-        type: "messagesSent" | "commandsUsed" | "voiceTime";
+        type: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed";
         limit?: number;
     }) {
         return await tx.stats.findMany({
