@@ -6,6 +6,8 @@ import "#events/interaction";
 import "#events/voice";
 import "#events/reaction";
 import "#events/unhandledEvents";
+import "#events/messages";
+import "#events/newMember";
 
 import { commandManager } from "#commands/manager";
 
