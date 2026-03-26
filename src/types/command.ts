@@ -3,6 +3,7 @@ import {
     Attachment,
     ChatInputCommandInteraction,
     Client,
+    PermissionFlagsBits,
     Role,
     TextChannel,
     User,
@@ -16,6 +17,7 @@ import { Logger } from "#utils/logger";
 export interface CommandMeta {
     name: string;
     description: string;
+    permissions: (keyof typeof PermissionFlagsBits)[];
 }
 
 export type CommandRun<T extends CommandOption[]> = (

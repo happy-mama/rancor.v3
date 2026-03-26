@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -18,23 +18,29 @@ enum VoiceSessionState {
   ENDED
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
+
 model User {
   id Int @id @default(autoincrement())
 
-  discordId String @unique @map("discord_id")
-  username String @default("")
+  discordId String   @unique @map("discord_id")
+  username  String   @default("")
+  role      UserRole @default(USER)
 
-  stats Stats?
+  stats        Stats?
   voiceSession VoiceSession?
 }
 
 model Stats {
   userId Int @id @unique @map("user_id")
 
-  voiceTime BigInt @default(0) @map("voice_time")
-  commandsUsed Int @default(0) @map("commands_used")
-  messagesSent Int @default(0) @map("messages_sent")
-  reactionsUsed Int @default(0) @map("reactions_used")
+  voiceTime     BigInt @default(0) @map("voice_time")
+  commandsUsed  Int    @default(0) @map("commands_used")
+  messagesSent  Int    @default(0) @map("messages_sent")
+  reactionsUsed Int    @default(0) @map("reactions_used")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -42,9 +48,9 @@ model Stats {
 model VoiceSession {
   userId Int @id @map("user_id")
 
-  startTime DateTime @default(now()) @map("start_time")
-  endTime DateTime @default(now()) @map("end_time")
-  state VoiceSessionState @default(ACTIVE)
+  startTime DateTime          @default(now()) @map("start_time")
+  endTime   DateTime          @default(now()) @map("end_time")
+  state     VoiceSessionState @default(ACTIVE)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

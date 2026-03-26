@@ -1,5 +1,6 @@
 import {
     ApplicationCommandOptionType,
+    PermissionsBitField,
     REST,
     Routes,
     SlashCommandBuilder,
@@ -61,6 +62,12 @@ class CommandManager {
         const slashCommand = new SlashCommandBuilder()
             .setName(command.name)
             .setDescription(command.description);
+
+        if (command.permissions.length) {
+            slashCommand.setDefaultMemberPermissions(
+                new PermissionsBitField(command.permissions).bitfield,
+            );
+        }
 
         for (const option of command.options) {
             switch (option.type) {

@@ -1,3 +1,4 @@
+import { UserRole } from "#generated/prisma/enums";
 import { prisma } from "#lib/prisma";
 
 class UserService {
@@ -36,6 +37,19 @@ class UserService {
                 voiceSession: { create: {} },
             },
         });
+    }
+
+    public async isAdmin({ discordId }: { discordId: string }) {
+        const data = await prisma.user.findUnique({
+            where: {
+                discordId,
+            },
+            select: {
+                role: true,
+            },
+        });
+
+        return data?.role == UserRole.ADMIN;
     }
 }
 

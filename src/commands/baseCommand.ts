@@ -26,6 +26,7 @@ export class BaseCommand<
     public readonly name: CommandMeta["name"];
     public readonly description: CommandMeta["description"];
     public readonly options: CommandOptions;
+    public readonly permissions: CommandMeta["permissions"];
     private readonly run: CommandRun<CommandOptions>;
 
     public readonly logger: Logger;
@@ -35,12 +36,14 @@ export class BaseCommand<
         description: CommandMeta["description"];
         options: CommandOptions;
         run: CommandRun<CommandOptions>;
+        permissions?: CommandMeta["permissions"];
     }) {
         this.logger = new Logger(`COMMAND:${props.name}`);
 
         this.name = props.name;
         this.description = props.description;
         this.options = props.options;
+        this.permissions = props.permissions ?? [];
         this.run = props.run;
     }
 
