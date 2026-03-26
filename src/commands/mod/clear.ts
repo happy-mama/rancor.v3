@@ -81,11 +81,12 @@ export const clearCommand = new BaseCommand({
 
                     before = messages.at(-1)?.id ?? "";
 
-                    if (filtered.length == 0) {
-                        continue;
+                    if (filtered.length !== 0) {
+                        await ctx.interaction.channel.bulkDelete(
+                            filtered,
+                            true,
+                        );
                     }
-
-                    await ctx.interaction.channel.bulkDelete(filtered, true);
 
                     toDelete -= filtered.length;
                     cycle++;
@@ -100,7 +101,7 @@ export const clearCommand = new BaseCommand({
 
             if (cycle >= 10 && toDelete > 0) {
                 await ctx.interaction.editReply({
-                    content: `Удалено только \`${toDelete}\` сообщений, остальные не найдены за последние ${MAX_CYCLES * FETCH_LIMIT} сообщений`,
+                    content: `Удалено \`${ctx.options.amount.value - toDelete}\` сообщений, остальные не найдены за последние ${MAX_CYCLES * FETCH_LIMIT} сообщений`,
                 });
             } else {
                 ctx.interaction.editReply({
