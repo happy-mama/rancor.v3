@@ -1,6 +1,6 @@
 import { prisma } from "#lib/prisma";
 import { VoiceSessionState } from "generated/prisma/enums";
-import statsService from "./stats";
+import { statsService } from "./stats";
 
 class VoiceService {
     async getSession(discordId: string) {

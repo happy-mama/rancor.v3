@@ -1,5 +1,5 @@
 import { client } from "#src/client";
-import statsService from "#src/repo/stats";
+import { statsService } from "#src/repo/stats";
 
 class MessagesEvents {
     constructor() {

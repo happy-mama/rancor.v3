@@ -1,7 +1,6 @@
 import { ApplicationCommandOptionType, ChannelType } from "discord.js";
 
 import { BaseCommand } from "../baseCommand";
-import statsService from "#repo/stats";
 
 const MAX_CYCLES = 10;
 const FETCH_LIMIT = 100;
@@ -25,8 +24,6 @@ export const clearCommand = new BaseCommand({
     ],
     permissions: ["ManageMessages"],
     run: async (ctx) => {
-        await statsService.incrementStatsCommandsUsed(ctx.interaction.user.id);
-
         if (!ctx.interaction.channel) {
             ctx.meta.tags.push("no_channel");
             return;

@@ -1,4 +1,5 @@
 import { prisma, PrismaTX } from "#lib/prisma";
+import type { UserStatsKeys } from "#types/repo";
 import { config } from "#utils/config";
 
 class StatsService {
@@ -40,7 +41,7 @@ class StatsService {
     }: {
         tx?: PrismaTX;
         discordId: string;
-        type: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed";
+        type: UserStatsKeys;
         value: number;
     }) {
         return tx.user.update({
@@ -63,7 +64,7 @@ class StatsService {
         limit = 10,
     }: {
         tx?: PrismaTX;
-        type: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed";
+        type: UserStatsKeys;
         limit?: number;
     }) {
         return await tx.stats.findMany({
@@ -85,4 +86,4 @@ class StatsService {
 
 const statsService = new StatsService();
 
-export default statsService;
+export { statsService };

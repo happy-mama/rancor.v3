@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType } from "discord.js";
 
 import { BaseCommand } from "#commands/baseCommand";
-import statsService from "#repo/stats";
+import { statsService } from "#repo/stats";
 import { voiceService } from "#repo/voice";
 import { VoiceSessionState } from "#generated/prisma/enums";
 
@@ -24,8 +24,6 @@ export const statsCommand = new BaseCommand({
     ],
     run: async (ctx) => {
         const target = ctx.options.user?.user ?? ctx.interaction.user;
-
-        await statsService.incrementStatsCommandsUsed(target.id);
 
         const stats = await statsService.getStats(target.id);
 

@@ -1,12 +1,11 @@
 import { ApplicationCommandOptionType } from "discord.js";
 
 import { BaseCommand } from "#commands/baseCommand";
-import statsService from "#repo/stats";
+import { statsService } from "#repo/stats";
 import { voiceService } from "#repo/voice";
+import type { UserStatsKeys } from "#types/repo";
 
-const formatCategoryName = (
-    category: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed",
-) => {
+const formatCategoryName = (category: UserStatsKeys) => {
     switch (category) {
         case "messagesSent":
             return "количеству сообщений";
@@ -20,7 +19,7 @@ const formatCategoryName = (
 };
 
 const formatCategoryValue = (
-    category: "messagesSent" | "commandsUsed" | "voiceTime" | "reactionsUsed",
+    category: UserStatsKeys,
     value: number | bigint,
 ) => {
     switch (category) {
@@ -71,8 +70,6 @@ export const topCommand = new BaseCommand({
         },
     ],
     run: async (ctx) => {
-        await statsService.incrementStatsCommandsUsed(ctx.interaction.user.id);
-
         const data = await statsService.getTopStats({
             type: ctx.options.category.value,
         });

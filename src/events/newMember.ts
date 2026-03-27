@@ -1,5 +1,5 @@
 import { client } from "#src/client";
-import userService from "#repo/user";
+import { userService } from "#repo/user";
 
 class NewMemberEvents {
     constructor() {

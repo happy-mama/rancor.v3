@@ -1,5 +1,5 @@
 import { client } from "#src/client";
-import statsService from "#repo/stats";
+import { statsService } from "#repo/stats";
 import { Logger } from "#utils/logger";
 
 class ReactionEvents {

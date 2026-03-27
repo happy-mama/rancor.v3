@@ -12,11 +12,11 @@ import type {
 import { client } from "#src/client";
 import { config } from "#utils/config";
 import { Logger } from "#utils/logger";
+import { statsService } from "#repo/stats";
 
 const CLEAR_COMMAND_CONTEXT_META: CommandContextMeta = {
     timeStart: 0,
     timeEnd: 0,
-    timeNow: 0,
     tags: [],
 };
 
@@ -76,6 +76,10 @@ export class BaseCommand<
         let ctx = this.createContext(interaction);
 
         try {
+            await statsService.incrementStatsCommandsUsed(
+                ctx.interaction.user.id,
+            );
+
             await this.run(ctx);
         } catch (error) {
             console.error(error);
