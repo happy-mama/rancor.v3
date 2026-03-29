@@ -7,9 +7,9 @@
         "dev": "tsx src/index.ts",
         "build": "tsc && tsc-alias --resolve-full-paths",
         "start": "node dist/src/index.js",
-        "lint:prisma": "npx prisma format",
-        "migrate:prisma": "npx prisma migrate dev",
-        "generate:prisma": "npx prisma generate",
+        "lint:prisma": "prisma format",
+        "migrate:prisma": "prisma migrate dev",
+        "generate:prisma": "prisma generate",
         "docker:up": "docker compose up --build -d"
     },
     "author": "",

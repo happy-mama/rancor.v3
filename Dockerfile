@@ -18,5 +18,4 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.env ./.env
 
-EXPOSE 3000
 CMD ["npm", "run", "start"]
