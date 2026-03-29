@@ -1,0 +1,28 @@
+name: rancor-v3
+
+services:
+    migrate:
+        build: .
+        command: npx prisma migrate deploy
+
+    app:
+        build: .
+        command: sh -c "npm run start"
+        container_name: RANCOR
+        restart: unless-stopped
+
+        ports:
+            - "3333:3000"
+
+        environment:
+            NODE_ENV: production
+
+        env_file:
+            - .env
+
+        depends_on:
+            - migrate
+
+networks:
+    proxy:
+        external: true
