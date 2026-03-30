@@ -14,6 +14,8 @@ import { config } from "#utils/config";
 import { Logger } from "#utils/logger";
 import { statsService } from "#repo/stats";
 
+const COMMAND_TIMEOUT = 40_000;
+
 const CLEAR_COMMAND_CONTEXT_META: CommandContextMeta = {
     timeStart: 0,
     timeEnd: 0,
@@ -72,6 +74,20 @@ export class BaseCommand<
         };
     }
 
+    private timeoutPromise(ctx: CommandContext<CommandOptions>) {
+        return new Promise((_, reject) => {
+            setTimeout(async () => {
+                if (ctx.interaction.deferred) {
+                    await ctx.interaction.editReply(
+                        "Таймаут команды, попробуйте снова",
+                    );
+                }
+
+                reject(new Error("timed out"));
+            }, COMMAND_TIMEOUT);
+        });
+    }
+
     public async execute(interaction: ChatInputCommandInteraction) {
         let ctx = this.createContext(interaction);
 
@@ -80,15 +96,20 @@ export class BaseCommand<
                 ctx.interaction.user.id,
             );
 
-            await this.run(ctx);
+            await Promise.race([this.run(ctx), this.timeoutPromise(ctx)]);
+
+            ctx.meta.timeEnd = Date.now();
+
+            this.logger.debug(
+                `executed in ${ctx.meta.timeEnd - ctx.meta.timeStart}ms, tags: ${ctx.meta.tags.join(", ")}`,
+            );
         } catch (error) {
-            console.error(error);
+            ctx.meta.timeEnd = Date.now();
+
+            this.logger.error(
+                `executed in ${ctx.meta.timeEnd - ctx.meta.timeStart}ms, tags: ${ctx.meta.tags.join(", ")}`,
+                error,
+            );
         }
-
-        ctx.meta.timeEnd = Date.now();
-
-        this.logger.debug(
-            `executed in ${ctx.meta.timeEnd - ctx.meta.timeStart}ms, tags: ${ctx.meta.tags.join(", ")}`,
-        );
     }
 }

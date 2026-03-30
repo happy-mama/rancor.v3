@@ -65,7 +65,9 @@ export const askCommand = new BaseCommand({
         },
     ],
     run: async (ctx) => {
-        if (!ctx.options.text.value) {
+        const text = ctx.options.text.value.trim();
+
+        if (!text) {
             ctx.meta.tags.push("empty text");
 
             return ctx.interaction.reply({
@@ -76,9 +78,7 @@ export const askCommand = new BaseCommand({
         const answer =
             ASK_ANSWERS[Math.floor(Math.random() * ASK_ANSWERS.length)];
 
-        const question = ctx.options.text.value.endsWith("?")
-            ? ctx.options.text.value
-            : `${ctx.options.text.value}?`;
+        const question = text.endsWith("?") ? text : `${text}?`;
 
         return ctx.interaction.reply({
             embeds: [

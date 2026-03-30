@@ -21,7 +21,7 @@ export const AICommand = new BaseCommand({
         },
     ],
     run: async (ctx) => {
-        const prompt = ctx.options.prompt.value;
+        const prompt = ctx.options.prompt.value.trim();
 
         if (prompt.length < 10) {
             await ctx.interaction.reply(
