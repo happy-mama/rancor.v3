@@ -20,7 +20,7 @@ class GeminiClient {
 
         this.genAI = new GoogleGenerativeAI(geminiAPIKey);
         this.model = this.genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-flash-lite",
             generationConfig: {
                 // maxOutputTokens: 500,
             },
