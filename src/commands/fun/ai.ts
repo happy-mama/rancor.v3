@@ -30,7 +30,7 @@ export const AICommand = new BaseCommand({
             return;
         }
 
-        ctx.interaction.deferReply({
+        await ctx.interaction.deferReply({
             flags:
                 (ctx.options.ephemeral?.value ?? false)
                     ? undefined
