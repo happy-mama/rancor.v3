@@ -5,17 +5,17 @@ import { colors } from "#utils/color";
 
 export const AICommand = new BaseCommand({
     name: "ai",
-    description: "Ask the AI a question",
+    description: "Задать ИИ любой вопрос (gemini-2.5-flash-lite)",
     options: [
         {
             name: "prompt",
-            description: "The prompt to send to the AI",
+            description: "Введите ваш вопрос",
             type: ApplicationCommandOptionType.String,
             isRequired: true,
         },
         {
             name: "ephemeral",
-            description: "Whether the response should be ephemeral",
+            description: "Показать результат всем",
             type: ApplicationCommandOptionType.Boolean,
             isRequired: false,
         },
@@ -23,9 +23,16 @@ export const AICommand = new BaseCommand({
     run: async (ctx) => {
         const prompt = ctx.options.prompt.value;
 
-        if (prompt.length < 6) {
+        if (prompt.length < 10) {
             await ctx.interaction.reply(
-                "Please provide a prompt with at least 6 characters.",
+                "Минимальная длина вопроса - 10 символов.",
+            );
+            return;
+        }
+
+        if (prompt.length >= 256) {
+            await ctx.interaction.reply(
+                "Максимальная длина вопроса - 256 символов.",
             );
             return;
         }
