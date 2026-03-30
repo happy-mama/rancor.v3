@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { BaseCommand } from "../baseCommand";
+import { colors } from "#utils/color";
 
 const ASK_ANSWERS = [
     "Это правда нан проверил",
@@ -83,7 +84,7 @@ export const askCommand = new BaseCommand({
             embeds: [
                 {
                     description: `**${question}**\n` + `\n` + `${answer}`,
-                    color: 13748767,
+                    color: colors.success,
                 },
             ],
         });

@@ -4,6 +4,7 @@ import { BaseCommand } from "#commands/baseCommand";
 import { statsService } from "#repo/stats";
 import { voiceService } from "#repo/voice";
 import type { UserStatsKeys } from "#types/repo";
+import { colors } from "#utils/color";
 
 const formatCategoryName = (category: UserStatsKeys) => {
     switch (category) {
@@ -89,7 +90,7 @@ export const topCommand = new BaseCommand({
                                     `<@${stats.user.discordId}>: \`${formatCategoryValue(ctx.options.category.value, stats[ctx.options.category.value])}\``,
                             )
                             .join("\n"),
-                    color: 13748767,
+                    color: colors.success,
                 },
             ],
             allowedMentions: {

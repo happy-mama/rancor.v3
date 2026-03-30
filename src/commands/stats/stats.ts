@@ -4,6 +4,7 @@ import { BaseCommand } from "#commands/baseCommand";
 import { statsService } from "#repo/stats";
 import { voiceService } from "#repo/voice";
 import { VoiceSessionState } from "#generated/prisma/enums";
+import { colors } from "#utils/color";
 
 export const statsCommand = new BaseCommand({
     name: "stats",
@@ -57,7 +58,7 @@ export const statsCommand = new BaseCommand({
                         `**Сообщений**: ${stats.messagesSent}\n` +
                         `**Команд**: ${stats.commandsUsed}\n` +
                         `**Реакций**: ${stats.reactionsUsed}`,
-                    color: 13748767,
+                    color: colors.success,
                 },
             ],
             allowedMentions: {

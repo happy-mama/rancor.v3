@@ -13,6 +13,7 @@ const envSchema = z.object({
     GUILD_TESTS_ID: z.string().nonempty(),
     GUILD_MAIN_ID: z.string().nonempty(),
     LOG_LEVELS: z.string(),
+    GEMINI_API_KEY: z.string(),
 });
 
 class Config {
