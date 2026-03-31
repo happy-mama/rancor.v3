@@ -6,21 +6,37 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-
         "rootDir": "./",
         "outDir": "./dist",
-
         "baseUrl": "./",
         "paths": {
-            "#root/*": ["/"],
-            "#src/*": ["src/*"],
-            "#utils/*": ["src/utils/*"],
-            "#events/*": ["src/events/*"],
-            "#commands/*": ["src/commands/*"],
-            "#types/*": ["src/types/*"],
-            "#generated/*": ["generated/*"],
-            "#lib/*": ["src/lib/*"],
-            "#repo/*": ["src/repo/*"],
-        },
-    },
+            "#root/*": [
+                "/"
+            ],
+            "#src/*": [
+                "src/*"
+            ],
+            "#utils/*": [
+                "src/utils/*"
+            ],
+            "#events/*": [
+                "src/events/*"
+            ],
+            "#commands/*": [
+                "src/commands/*"
+            ],
+            "#types/*": [
+                "src/types/*"
+            ],
+            "#generated/*": [
+                "generated/*"
+            ],
+            "#lib/*": [
+                "src/lib/*"
+            ],
+            "#repo/*": [
+                "src/repo/*"
+            ]
+        }
+    }
 }

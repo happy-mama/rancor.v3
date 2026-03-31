@@ -12,5 +12,5 @@ import "#events/newMember";
 import { commandManager } from "#commands/manager";
 
 commandManager.generate().then(() => {
-    startClient();
+	startClient();
 });

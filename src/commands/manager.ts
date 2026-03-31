@@ -1,174 +1,172 @@
 import {
-    ApplicationCommandOptionType,
-    PermissionsBitField,
-    REST,
-    Routes,
-    SlashCommandBuilder,
+	ApplicationCommandOptionType,
+	PermissionsBitField,
+	REST,
+	Routes,
+	SlashCommandBuilder,
 } from "discord.js";
 
 import type { BaseCommand } from "#commands/baseCommand";
-import { Logger } from "#utils/logger";
-import { config } from "#utils/config";
 import * as allCommands from "#commands/index";
+import { config } from "#utils/config";
+import { Logger } from "#utils/logger";
 
 class CommandManager {
-    private commands: { [key: string]: BaseCommand } = {};
-    public logger = new Logger("COMMAND_MANAGER");
+	private commands: { [key: string]: BaseCommand } = {};
+	public logger = new Logger("COMMAND_MANAGER");
 
-    constructor() {
-        for (const category of Object.values(allCommands)) {
-            for (const command of Object.values(category)) {
-                this.register(command);
-            }
-        }
-    }
+	constructor() {
+		for (const category of Object.values(allCommands)) {
+			for (const command of Object.values(category)) {
+				this.register(command);
+			}
+		}
+	}
 
-    public register(command: BaseCommand) {
-        this.commands[command.name] = command;
+	public register(command: BaseCommand) {
+		this.commands[command.name] = command;
 
-        this.logger.info(`Registered command: ${command.name}`);
-    }
+		this.logger.info(`Registered command: ${command.name}`);
+	}
 
-    public get(name: string) {
-        return this.commands[name] || null;
-    }
+	public get(name: string) {
+		return this.commands[name] || null;
+	}
 
-    public async generate() {
-        const slashCommands = Object.values(this.commands).map((command) =>
-            this.buildSlashCommand(command),
-        );
+	public async generate() {
+		const slashCommands = Object.values(this.commands).map((command) =>
+			this.buildSlashCommand(command),
+		);
 
-        const rest = new REST({ version: "10" }).setToken(
-            config.get("DISCORD_BOT_TOKEN"),
-        );
+		const rest = new REST({ version: "10" }).setToken(
+			config.get("DISCORD_BOT_TOKEN"),
+		);
 
-        try {
-            this.logger.info("Uploading commands...");
+		try {
+			this.logger.info("Uploading commands...");
 
-            await rest.put(
-                Routes.applicationCommands(
-                    config.get("DISCORD_APPLICATION_ID"),
-                ),
-                { body: slashCommands },
-            );
+			await rest.put(
+				Routes.applicationCommands(config.get("DISCORD_APPLICATION_ID")),
+				{ body: slashCommands },
+			);
 
-            this.logger.info("Commands uploaded");
-        } catch (error) {
-            this.logger.error(error);
-        }
-    }
+			this.logger.info("Commands uploaded");
+		} catch (error) {
+			this.logger.error(error);
+		}
+	}
 
-    private buildSlashCommand(command: BaseCommand) {
-        const slashCommand = new SlashCommandBuilder()
-            .setName(command.name)
-            .setDescription(command.description);
+	private buildSlashCommand(command: BaseCommand) {
+		const slashCommand = new SlashCommandBuilder()
+			.setName(command.name)
+			.setDescription(command.description);
 
-        if (command.permissions.length) {
-            slashCommand.setDefaultMemberPermissions(
-                new PermissionsBitField(command.permissions).bitfield,
-            );
-        }
+		if (command.permissions.length) {
+			slashCommand.setDefaultMemberPermissions(
+				new PermissionsBitField(command.permissions).bitfield,
+			);
+		}
 
-        for (const option of command.options) {
-            switch (option.type) {
-                case ApplicationCommandOptionType.User: {
-                    slashCommand.addUserOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.Role: {
-                    slashCommand.addRoleOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.Channel: {
-                    slashCommand.addChannelOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.String: {
-                    slashCommand.addStringOption((builder) => {
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false);
+		for (const option of command.options) {
+			switch (option.type) {
+				case ApplicationCommandOptionType.User: {
+					slashCommand.addUserOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.Role: {
+					slashCommand.addRoleOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.Channel: {
+					slashCommand.addChannelOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.String: {
+					slashCommand.addStringOption((builder) => {
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false);
 
-                        if (option.choices) {
-                            builder.setChoices(option.choices);
-                        }
+						if (option.choices) {
+							builder.setChoices(option.choices);
+						}
 
-                        return builder;
-                    });
-                    break;
-                }
-                case ApplicationCommandOptionType.Number: {
-                    slashCommand.addNumberOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.Boolean: {
-                    slashCommand.addBooleanOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.Integer: {
-                    slashCommand.addIntegerOption((builder) => {
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false);
+						return builder;
+					});
+					break;
+				}
+				case ApplicationCommandOptionType.Number: {
+					slashCommand.addNumberOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.Boolean: {
+					slashCommand.addBooleanOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.Integer: {
+					slashCommand.addIntegerOption((builder) => {
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false);
 
-                        if (option.choices) {
-                            builder.setChoices(option.choices);
-                        }
+						if (option.choices) {
+							builder.setChoices(option.choices);
+						}
 
-                        return builder;
-                    });
-                    break;
-                }
-                case ApplicationCommandOptionType.Attachment: {
-                    slashCommand.addAttachmentOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-                case ApplicationCommandOptionType.Mentionable: {
-                    slashCommand.addMentionableOption((builder) =>
-                        builder
-                            .setName(option.name)
-                            .setDescription(option.description)
-                            .setRequired(option.isRequired ?? false),
-                    );
-                    break;
-                }
-            }
-        }
+						return builder;
+					});
+					break;
+				}
+				case ApplicationCommandOptionType.Attachment: {
+					slashCommand.addAttachmentOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+				case ApplicationCommandOptionType.Mentionable: {
+					slashCommand.addMentionableOption((builder) =>
+						builder
+							.setName(option.name)
+							.setDescription(option.description)
+							.setRequired(option.isRequired ?? false),
+					);
+					break;
+				}
+			}
+		}
 
-        return slashCommand.toJSON();
-    }
+		return slashCommand.toJSON();
+	}
 }
 
 export const commandManager = new CommandManager();

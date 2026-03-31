@@ -1,5 +1,5 @@
 export type UserStatsKeys =
-    | "messagesSent"
-    | "commandsUsed"
-    | "voiceTime"
-    | "reactionsUsed";
+	| "messagesSent"
+	| "commandsUsed"
+	| "voiceTime"
+	| "reactionsUsed";
