@@ -74,8 +74,10 @@ export class BaseCommand<
 	}
 
 	private timeoutPromise(ctx: CommandContext<CommandOptions>) {
-		return new Promise((_, reject) => {
-			setTimeout(async () => {
+		let timeout: NodeJS.Timeout | undefined;
+
+		const timeoutPromise = new Promise((_, reject) => {
+			timeout = setTimeout(async () => {
 				if (ctx.interaction.deferred) {
 					await ctx.interaction.editReply("Таймаут команды, попробуйте снова");
 				}
@@ -83,22 +85,28 @@ export class BaseCommand<
 				reject(new Error("timed out"));
 			}, COMMAND_TIMEOUT);
 		});
+
+		return { timeoutPromise, timeout };
 	}
 
 	public async execute(interaction: ChatInputCommandInteraction) {
 		const ctx = this.createContext(interaction);
 
+		const { timeoutPromise, timeout } = this.timeoutPromise(ctx);
+
 		try {
 			await statsService.incrementStatsCommandsUsed(ctx.interaction.user.id);
 
-			await Promise.race([this.run(ctx), this.timeoutPromise(ctx)]);
+			await Promise.race([this.run(ctx), timeoutPromise]);
 
+			clearTimeout(timeout);
 			ctx.meta.timeEnd = Date.now();
 
 			this.logger.debug(
 				`executed in ${ctx.meta.timeEnd - ctx.meta.timeStart}ms, tags: ${ctx.meta.tags.join(", ")}`,
 			);
 		} catch (error) {
+			clearTimeout(timeout);
 			ctx.meta.timeEnd = Date.now();
 
 			this.logger.error(
