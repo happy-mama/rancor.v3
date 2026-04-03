@@ -1,15 +1,9 @@
-import { VoiceSessionState } from "generated/prisma/enums";
+import { VoiceSessionState } from "#generated/prisma/enums";
 import { type PrismaTX, prisma } from "#lib/prisma";
 import { statsService } from "./stats";
 
 class VoiceService {
-	async getSession({
-		discordId,
-		tx,
-	}: {
-		discordId: string;
-		tx?: PrismaTX;
-	}) {
+	async getSession({ discordId, tx }: { discordId: string; tx?: PrismaTX }) {
 		const db = tx ?? prisma;
 		const data = await db.user.findUnique({
 			where: {
@@ -23,13 +17,7 @@ class VoiceService {
 		return data?.voiceSession || null;
 	}
 
-	async createSession({
-		discordId,
-		tx,
-	}: {
-		discordId: string;
-		tx?: PrismaTX;
-	}) {
+	async createSession({ discordId, tx }: { discordId: string; tx?: PrismaTX }) {
 		const db = tx ?? prisma;
 		const data = await db.user.update({
 			where: {
