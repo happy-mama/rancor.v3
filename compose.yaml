@@ -1,25 +1,61 @@
 name: rancor-v3
 
 services:
+    postgres:
+        image: postgres:17-alpine
+        container_name: rancor-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - proxy
+            - internal
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
     migrate:
         build:
             context: .
             dockerfile: migrate.Dockerfile
+        container_name: rancor-migrate
+        environment:
+            NODE_ENV: production
+        env_file:
+            - .env
+        networks:
+            - internal
+        depends_on:
+            postgres:
+                condition: service_healthy
 
     app:
         build: .
         container_name: RANCOR
         restart: unless-stopped
-
         environment:
             NODE_ENV: production
-
         env_file:
             - .env
-
+        networks:
+            - internal
         depends_on:
-            - migrate
+            migrate:
+                condition: service_completed_successfully
+
+volumes:
+    postgres_data:
 
 networks:
     proxy:
         external: true
+    internal:
+        driver: bridge
