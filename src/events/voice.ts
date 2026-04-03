@@ -1,7 +1,7 @@
 import type { VoiceState } from "discord.js";
 import { voiceService } from "#repo/voice";
 import { client } from "#src/client";
-import { Logger } from "#src/utils/logger";
+import { Logger } from "#utils/logger";
 
 const logger = new Logger("EVENTS:voice");
 

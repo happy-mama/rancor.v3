@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, ChannelType } from "discord.js";
 
-import { BaseCommand } from "../baseCommand";
+import { BaseCommand } from "#commands/baseCommand";
 
 const MAX_CYCLES = 10;
 const FETCH_LIMIT = 100;
@@ -97,7 +97,7 @@ export const clearCommand = new BaseCommand({
 					content: `Удалено \`${ctx.options.amount.value - toDelete}\` сообщений, остальные не найдены за последние ${MAX_CYCLES * FETCH_LIMIT} сообщений`,
 				});
 			} else {
-				ctx.interaction.editReply({
+				await ctx.interaction.editReply({
 					content: "Готово",
 				});
 			}

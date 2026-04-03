@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import type { DefaultArgs } from "@prisma/client/runtime/client";
 import { PrismaClient } from "#generated/prisma/client";

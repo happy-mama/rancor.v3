@@ -1,11 +1,14 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGoogleGenerativeAI, type google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { config } from "#utils/config";
 import { Logger } from "#utils/logger";
 
+type GoogleModel = ReturnType<typeof google>;
+
 class AIClient {
-	private readonly google!: ReturnType<typeof createGoogleGenerativeAI>;
-	private readonly model!: ReturnType<typeof this.google>;
+	private readonly google: ReturnType<typeof createGoogleGenerativeAI> | null =
+		null;
+	private readonly model: GoogleModel | null = null;
 	private readonly logger = new Logger("AIClient");
 
 	constructor() {

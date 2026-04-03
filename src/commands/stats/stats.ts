@@ -21,6 +21,7 @@ export const statsCommand = new BaseCommand({
 			description: "Показать всем",
 			type: ApplicationCommandOptionType.Boolean,
 			isRequired: false,
+			defaultValue: false,
 		},
 	],
 	run: async (ctx) => {
@@ -45,14 +46,13 @@ export const statsCommand = new BaseCommand({
 		}
 
 		return ctx.interaction.reply({
-			flags:
-				(ctx.options.ephemeral?.value ?? false) ? undefined : ["Ephemeral"],
+			flags: ctx.options.ephemeral.value ? undefined : ["Ephemeral"],
 			embeds: [
 				{
 					description:
 						`**Статистика юзера:** <@${target.id}>\n\n` +
-						`**Время в воисе**: \`${voice.time}\`\n` +
-						`**Последняя сессия в воисе:** ${lastSession}\n` +
+						`**Время в войсе**: \`${voice.time}\`\n` +
+						`**Последняя сессия в войсе:** ${lastSession}\n` +
 						`**Сообщений**: ${stats.messagesSent}\n` +
 						`**Команд**: ${stats.commandsUsed}\n` +
 						`**Реакций**: ${stats.reactionsUsed}`,

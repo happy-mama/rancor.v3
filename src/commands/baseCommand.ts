@@ -57,10 +57,19 @@ export class BaseCommand<
 
 		const options = {} as ResolveOptions<CommandOptions>;
 
-		for (const option of interaction.options.data) {
+		for (const option of this.options) {
 			const name = option.name as CommandOptions[number]["name"];
+			const found = interaction.options.data.find((o) => o.name === name);
 
-			options[name] = option as any;
+			if (found) {
+				options[name] = found as any;
+			} else if (option.defaultValue !== undefined) {
+				options[name] = {
+					name,
+					type: option.type,
+					value: option.defaultValue,
+				} as any;
+			}
 		}
 
 		return {

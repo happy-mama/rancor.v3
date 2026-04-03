@@ -3,7 +3,21 @@ import { BaseCommand } from "#commands/baseCommand";
 import { aiClient } from "#lib/ai";
 import { colors } from "#utils/color";
 
-export const AICommand = new BaseCommand({
+const RATE_LIMIT_MS = 5000;
+const userCooldowns = new Map<string, number>();
+
+const cleanupCooldowns = () => {
+	const now = Date.now();
+	for (const [userId, timestamp] of userCooldowns) {
+		if (now - timestamp > RATE_LIMIT_MS) {
+			userCooldowns.delete(userId);
+		}
+	}
+};
+
+setInterval(cleanupCooldowns, RATE_LIMIT_MS * 2);
+
+export const aiCommand = new BaseCommand({
 	name: "ai",
 	description: "Задать ИИ любой вопрос (gemini-2.5-flash-lite)",
 	options: [
@@ -18,33 +32,50 @@ export const AICommand = new BaseCommand({
 			description: "Показать результат всем",
 			type: ApplicationCommandOptionType.Boolean,
 			isRequired: false,
+			defaultValue: false,
 		},
 	],
 	run: async (ctx) => {
+		const userId = ctx.interaction.user.id;
+		const now = Date.now();
+		const lastUsed = userCooldowns.get(userId);
+
+		if (lastUsed && now - lastUsed < RATE_LIMIT_MS) {
+			const remaining = Math.ceil((RATE_LIMIT_MS - (now - lastUsed)) / 1000);
+			return await ctx.interaction.reply({
+				flags: ["Ephemeral"],
+				content: `Подожди ещё ${remaining} сек.`,
+			});
+		}
+
 		const prompt = ctx.options.prompt.value.trim();
 
 		if (prompt.length < 10) {
-			await ctx.interaction.reply("Минимальная длина вопроса - 10 символов.");
-			return;
+			return await ctx.interaction.reply(
+				"Минимальная длина вопроса - 10 символов.",
+			);
 		}
 
 		if (prompt.length >= 256) {
-			await ctx.interaction.reply("Максимальная длина вопроса - 256 символов.");
-			return;
+			return await ctx.interaction.reply(
+				"Максимальная длина вопроса - 256 символов.",
+			);
 		}
 
+		userCooldowns.set(userId, now);
+
 		await ctx.interaction.deferReply({
-			flags:
-				(ctx.options.ephemeral?.value ?? false) ? undefined : ["Ephemeral"],
+			flags: ctx.options.ephemeral.value ? undefined : ["Ephemeral"],
 		});
 
-		let result = await aiClient.generateContent(prompt);
+		const result = await aiClient.generateContent(prompt);
 
 		const parts: string[] = [];
+		let remaining_text = result;
 
-		while (result.length > 0) {
-			parts.push(result.slice(0, 1900));
-			result = result.slice(1900);
+		while (remaining_text.length > 0) {
+			parts.push(remaining_text.slice(0, 1900));
+			remaining_text = remaining_text.slice(1900);
 		}
 
 		await ctx.interaction.editReply({
@@ -58,20 +89,12 @@ export const AICommand = new BaseCommand({
 		});
 
 		if (parts.length > 1) {
-			let ignoreFirst = true;
-
-			for (const part of parts) {
-				if (ignoreFirst) {
-					ignoreFirst = false;
-					continue;
-				}
-
+			for (let i = 1; i < parts.length; i++) {
 				await ctx.interaction.followUp({
-					flags:
-						(ctx.options.ephemeral?.value ?? false) ? undefined : ["Ephemeral"],
+					flags: ctx.options.ephemeral.value ? undefined : ["Ephemeral"],
 					embeds: [
 						{
-							description: part,
+							description: parts[i],
 							color: colors.success,
 						},
 					],

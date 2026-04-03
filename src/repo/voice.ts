@@ -1,10 +1,17 @@
 import { VoiceSessionState } from "generated/prisma/enums";
-import { prisma } from "#lib/prisma";
+import { type PrismaTX, prisma } from "#lib/prisma";
 import { statsService } from "./stats";
 
 class VoiceService {
-	async getSession(discordId: string) {
-		const data = await prisma.user.findUnique({
+	async getSession({
+		discordId,
+		tx,
+	}: {
+		discordId: string;
+		tx?: PrismaTX;
+	}) {
+		const db = tx ?? prisma;
+		const data = await db.user.findUnique({
 			where: {
 				discordId,
 			},
@@ -16,8 +23,15 @@ class VoiceService {
 		return data?.voiceSession || null;
 	}
 
-	async createSession(discordId: string) {
-		const data = await prisma.user.update({
+	async createSession({
+		discordId,
+		tx,
+	}: {
+		discordId: string;
+		tx?: PrismaTX;
+	}) {
+		const db = tx ?? prisma;
+		const data = await db.user.update({
 			where: {
 				discordId,
 			},
@@ -35,37 +49,39 @@ class VoiceService {
 	}
 
 	async startSession(discordId: string) {
-		let session = await this.getSession(discordId);
-
-		if (!session) {
-			session = await this.createSession(discordId);
+		return await prisma.$transaction(async (tx) => {
+			let session = await this.getSession({ discordId, tx });
 
 			if (!session) {
+				session = await this.createSession({ discordId, tx });
+
+				if (!session) {
+					return null;
+				}
+			}
+
+			if (session.state === VoiceSessionState.ACTIVE) {
 				return null;
 			}
-		}
 
-		if (session.state === VoiceSessionState.ACTIVE) {
-			return null;
-		}
-
-		await prisma.user.update({
-			where: {
-				discordId,
-			},
-			data: {
-				voiceSession: {
-					update: {
-						startTime: new Date(),
-						state: "ACTIVE",
+			await tx.user.update({
+				where: {
+					discordId,
+				},
+				data: {
+					voiceSession: {
+						update: {
+							startTime: new Date(),
+							state: VoiceSessionState.ACTIVE,
+						},
 					},
 				},
-			},
+			});
 		});
 	}
 
 	async endSession(discordId: string) {
-		const session = await this.getSession(discordId);
+		const session = await this.getSession({ discordId });
 
 		if (!session || session.state !== VoiceSessionState.ACTIVE) {
 			return null;
@@ -82,7 +98,7 @@ class VoiceService {
 					voiceSession: {
 						update: {
 							endTime: now,
-							state: "ENDED",
+							state: VoiceSessionState.ENDED,
 						},
 					},
 					stats: {
@@ -99,7 +115,7 @@ class VoiceService {
 
 	async getTime(discordId: string) {
 		const time = this.formatTime(await this.getTimeRaw(discordId));
-		const session = await this.getSession(discordId);
+		const session = await this.getSession({ discordId });
 
 		return { time, session };
 	}
@@ -109,7 +125,7 @@ class VoiceService {
 
 		if (!stats) return 0n;
 
-		const activeSession = await this.getSession(discordId);
+		const activeSession = await this.getSession({ discordId });
 
 		if (!activeSession || activeSession.state !== VoiceSessionState.ACTIVE) {
 			return stats.voiceTime;

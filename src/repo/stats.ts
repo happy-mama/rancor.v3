@@ -19,11 +19,19 @@ class StatsService {
 	}
 
 	async incrementStatsCommandsUsed(discordId: string) {
-		return prisma.user.update({
+		return prisma.user.upsert({
 			where: {
 				discordId: discordId,
 			},
-			data: {
+			create: {
+				discordId: discordId,
+				stats: {
+					create: {
+						commandsUsed: 1,
+					},
+				},
+			},
+			update: {
 				stats: {
 					update: {
 						commandsUsed: { increment: 1 },
@@ -44,11 +52,19 @@ class StatsService {
 		type: UserStatsKeys;
 		value: number;
 	}) {
-		return tx.user.update({
+		return tx.user.upsert({
 			where: {
 				discordId: discordId,
 			},
-			data: {
+			create: {
+				discordId: discordId,
+				stats: {
+					create: {
+						[type]: value,
+					},
+				},
+			},
+			update: {
 				stats: {
 					update: {
 						[type]: { increment: value },

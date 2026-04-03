@@ -37,7 +37,7 @@ const formatCategoryValue = (
 
 export const topCommand = new BaseCommand({
 	name: "top",
-	description: "Узнать статистику пользователя",
+	description: "Показать топ пользователей по категории",
 	options: [
 		{
 			name: "category",
@@ -68,6 +68,7 @@ export const topCommand = new BaseCommand({
 			description: "Показать всем",
 			type: ApplicationCommandOptionType.Boolean,
 			isRequired: false,
+			defaultValue: false,
 		},
 	],
 	run: async (ctx) => {
@@ -75,9 +76,8 @@ export const topCommand = new BaseCommand({
 			type: ctx.options.category.value,
 		});
 
-		ctx.interaction.reply({
-			flags:
-				(ctx.options.ephemeral?.value ?? false) ? undefined : ["Ephemeral"],
+		await ctx.interaction.reply({
+			flags: ctx.options.ephemeral.value ? undefined : ["Ephemeral"],
 			embeds: [
 				{
 					description:

@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from "discord.js";
+import { BaseCommand } from "#commands/baseCommand";
 import { colors } from "#utils/color";
-import { BaseCommand } from "../baseCommand";
 
 const ASK_ANSWERS = [
 	"Это правда нан проверил",
@@ -70,7 +70,7 @@ export const askCommand = new BaseCommand({
 		if (!text) {
 			ctx.meta.tags.push("empty text");
 
-			return ctx.interaction.reply({
+			return await ctx.interaction.reply({
 				content: `<@${ctx.interaction.user.id}> ты че еблан?`,
 			});
 		}
@@ -79,7 +79,7 @@ export const askCommand = new BaseCommand({
 
 		const question = text.endsWith("?") ? text : `${text}?`;
 
-		return ctx.interaction.reply({
+		return await ctx.interaction.reply({
 			embeds: [
 				{
 					description: `**${question}**\n` + `\n` + `${answer}`,
