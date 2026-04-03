@@ -1,7 +1,5 @@
 node_modules
 npm-debug.log
-dist
-generated
 .git
 .github
 .gitignore
