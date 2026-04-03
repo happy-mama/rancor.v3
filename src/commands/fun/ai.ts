@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { BaseCommand } from "#commands/baseCommand";
-import { geminiClient } from "#src/lib/gemini";
+import { aiClient } from "#lib/ai";
 import { colors } from "#utils/color";
 
 export const AICommand = new BaseCommand({
@@ -38,7 +38,7 @@ export const AICommand = new BaseCommand({
 				(ctx.options.ephemeral?.value ?? false) ? undefined : ["Ephemeral"],
 		});
 
-		let result = await geminiClient.generateContent(prompt);
+		let result = await aiClient.generateContent(prompt);
 
 		const parts: string[] = [];
 

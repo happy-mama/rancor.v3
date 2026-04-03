@@ -3,58 +3,52 @@ import { voiceService } from "#repo/voice";
 import { client } from "#src/client";
 import { Logger } from "#src/utils/logger";
 
-class VoiceEvents {
-	private logger = new Logger("EVENTS:voice");
+const logger = new Logger("EVENTS:voice");
 
-	constructor() {
-		client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
-			// ignore useless mic mute updates
-			if (oldVoiceState.channelId === newVoiceState.channelId) return;
+const voiceChannelJoin = ({
+	oldVoiceState,
+	newVoiceState,
+}: {
+	oldVoiceState: VoiceState;
+	newVoiceState: VoiceState;
+}) => {
+	if (!newVoiceState.member?.user.id) return;
 
-			// ignore channel switch updates
-			if (oldVoiceState.channelId && newVoiceState.channelId) return;
+	logger.debug(
+		`member "${newVoiceState.member.user.username}" joined voice channel`,
+	);
 
-			if (oldVoiceState.channelId) {
-				this.voiceChannelLeave({ oldVoiceState, newVoiceState });
-			}
+	voiceService.startSession(newVoiceState.member.user.id);
+};
 
-			if (newVoiceState.channelId) {
-				this.voiceChannelJoin({ oldVoiceState, newVoiceState });
-			}
-		});
+const voiceChannelLeave = ({
+	oldVoiceState,
+	newVoiceState,
+}: {
+	oldVoiceState: VoiceState;
+	newVoiceState: VoiceState;
+}) => {
+	if (!oldVoiceState.member?.user.id) return;
+
+	logger.debug(
+		`member "${oldVoiceState.member.user.username}" left voice channel`,
+	);
+
+	voiceService.endSession(oldVoiceState.member.user.id);
+};
+
+client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
+	// ignore useless mic mute updates
+	if (oldVoiceState.channelId === newVoiceState.channelId) return;
+
+	// ignore channel switch updates
+	if (oldVoiceState.channelId && newVoiceState.channelId) return;
+
+	if (oldVoiceState.channelId) {
+		voiceChannelLeave({ oldVoiceState, newVoiceState });
 	}
 
-	private voiceChannelJoin({
-		oldVoiceState,
-		newVoiceState,
-	}: {
-		oldVoiceState: VoiceState;
-		newVoiceState: VoiceState;
-	}) {
-		if (!newVoiceState.member?.user.id) return;
-
-		this.logger.debug(
-			`member "${newVoiceState.member.user.username}" joined voice channel`,
-		);
-
-		voiceService.startSession(newVoiceState.member.user.id);
+	if (newVoiceState.channelId) {
+		voiceChannelJoin({ oldVoiceState, newVoiceState });
 	}
-
-	private voiceChannelLeave({
-		oldVoiceState,
-		newVoiceState,
-	}: {
-		oldVoiceState: VoiceState;
-		newVoiceState: VoiceState;
-	}) {
-		if (!oldVoiceState.member?.user.id) return;
-
-		this.logger.debug(
-			`member "${oldVoiceState.member.user.username}" left voice channel`,
-		);
-
-		voiceService.endSession(oldVoiceState.member.user.id);
-	}
-}
-
-export const voiceEvents = new VoiceEvents();
+});

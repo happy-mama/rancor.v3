@@ -1,11 +1,12 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
 import { config } from "#utils/config";
 import { Logger } from "#utils/logger";
 
-class GeminiClient {
-	private readonly genAI!: GoogleGenerativeAI;
-	private readonly model!: ReturnType<typeof this.genAI.getGenerativeModel>;
-	private readonly logger = new Logger("GeminiClient");
+class AIClient {
+	private readonly google!: ReturnType<typeof createGoogleGenerativeAI>;
+	private readonly model!: ReturnType<typeof this.google>;
+	private readonly logger = new Logger("AIClient");
 
 	constructor() {
 		const geminiAPIKey = config.get("GEMINI_API_KEY");
@@ -18,10 +19,10 @@ class GeminiClient {
 			return;
 		}
 
-		this.genAI = new GoogleGenerativeAI(geminiAPIKey);
-		this.model = this.genAI.getGenerativeModel({
-			model: "gemini-2.5-flash-lite",
+		this.google = createGoogleGenerativeAI({
+			apiKey: geminiAPIKey,
 		});
+		this.model = this.google("gemini-2.5-flash-lite");
 	}
 
 	async generateContent(text: string) {
@@ -30,19 +31,18 @@ class GeminiClient {
 				return "AI features are currently unavailable.";
 			}
 
-			const prompt = `
+			const { text: response } = await generateText({
+				model: this.model,
+				system: `
             RULES:
             - Try to answer the question as concisely as possible.
             - Do not add any additional text or explanations if it is not necessary.
             - Reply in user question language.
+            `,
+				prompt: text,
+			});
 
-            User question:
-            ${text}
-            `;
-
-			const result = await this.model.generateContent(prompt);
-
-			return result.response.text();
+			return response;
 		} catch (error) {
 			this.logger.error(error);
 			return "An error occurred while generating content.";
@@ -50,4 +50,4 @@ class GeminiClient {
 	}
 }
 
-export const geminiClient = new GeminiClient();
+export const aiClient = new AIClient();
