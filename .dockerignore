@@ -2,9 +2,6 @@ node_modules
 npm-debug.log
 dist
 generated
-.env
-.env.*
-!.env.example
 .git
 .github
 .gitignore
@@ -12,5 +9,3 @@ generated
 .idea
 *.md
 !readme.md
-biome.json
-tsconfig.json
